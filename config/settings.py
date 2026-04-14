@@ -69,7 +69,9 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST', ''),
         'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
-            'ssl': {'ca': '/etc/ssl/certs/ca-certificates.crt'},
+            'ssl': {
+                'ca': str(BASE_DIR / 'certs' / 'ca.pem'),
+            },
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
