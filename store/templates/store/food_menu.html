@@ -1,0 +1,563 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Food Menu{% endblock %}
+
+{% block content %}
+<style>
+    .menu-shell {
+        max-width: 1520px;
+        margin: 0 auto;
+    }
+
+    .menu-layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 22px;
+        align-items: start;
+    }
+
+    .menu-sidebar,
+    .menu-main-card {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .menu-sidebar {
+        padding: 18px;
+        position: sticky;
+        top: 20px;
+    }
+
+    .menu-sidebar-title {
+        font-size: 24px;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 16px;
+    }
+
+    .category-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .category-link {
+        display: block;
+        text-decoration: none;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 14px;
+        transition: 0.2s ease;
+    }
+
+    .category-link:hover {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        transform: translateY(-1px);
+    }
+
+    .category-link.active-category {
+        background: #facc15;
+        border-color: #facc15;
+    }
+
+    .category-name {
+        font-size: 18px;
+        font-weight: 800;
+        color: #0f172a;
+        text-transform: capitalize;
+        margin-bottom: 4px;
+    }
+
+    .category-count {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 700;
+    }
+
+    .menu-main {
+        min-width: 0;
+    }
+
+    .menu-main-card {
+        padding: 24px;
+    }
+
+    .menu-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .menu-heading h1 {
+        font-size: 46px;
+        line-height: 1.05;
+        color: #0f172a;
+        margin-bottom: 10px;
+    }
+
+    .menu-heading p {
+        color: #64748b;
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 760px;
+    }
+
+    .menu-search-wrap {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .menu-search-input {
+        width: 100%;
+        padding: 15px 18px;
+        border: 1px solid #cbd5e1;
+        border-radius: 16px;
+        font-size: 16px;
+        background: white;
+        outline: none;
+    }
+
+    .menu-summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .menu-summary-row .summary-text {
+        color: #64748b;
+        font-weight: 700;
+    }
+
+    .cart-link-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #0f172a;
+        color: white;
+        text-decoration: none;
+        padding: 13px 18px;
+        border-radius: 16px;
+        font-weight: 900;
+    }
+
+    .menu-section {
+        margin-bottom: 28px;
+    }
+
+    .menu-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .section-title-row h2 {
+        font-size: 24px;
+        color: #0f172a;
+        margin: 0;
+        text-transform: capitalize;
+    }
+
+    .section-title-row p {
+        margin: 0;
+        color: #64748b;
+        font-weight: 700;
+    }
+
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+        gap: 20px;
+    }
+
+    .food-card {
+        background: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 22px;
+        padding: 16px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .food-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.10);
+    }
+
+    .food-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 18px;
+        margin-bottom: 14px;
+    }
+
+    .food-topline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .food-category {
+        display: inline-block;
+        background: #eef2ff;
+        color: #2563eb;
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: capitalize;
+    }
+
+    .food-stock-badge {
+        display: inline-block;
+        background: #f8fafc;
+        color: #475569;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .food-name {
+        font-size: 28px;
+        font-weight: 900;
+        color: #0f172a;
+        line-height: 1.1;
+        margin-bottom: 8px;
+        text-transform: capitalize;
+    }
+
+    .food-desc {
+        font-size: 14px;
+        color: #64748b;
+        line-height: 1.5;
+        min-height: 44px;
+        margin-bottom: 12px;
+    }
+
+    .food-price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+
+    .food-price {
+        font-size: 28px;
+        font-weight: 900;
+        color: #16a34a;
+    }
+
+    .food-stock {
+        color: #475569;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .add-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: auto;
+    }
+
+    .qty-box {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 148px;
+    }
+
+    .qty-btn {
+        width: 38px;
+        height: 38px;
+        border: none;
+        border-radius: 12px;
+        background: #e2e8f0;
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 900;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .qty-btn:hover {
+        background: #cbd5e1;
+    }
+
+    .qty-input {
+        width: 66px;
+        padding: 10px 8px;
+        border-radius: 12px;
+        border: 1px solid #cbd5e1;
+        text-align: center;
+        font-weight: 800;
+        background: white;
+    }
+
+    .add-btn {
+        flex: 1;
+        padding: 13px 14px;
+        background: #0f766e;
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .add-btn:hover {
+        background: #0d9488;
+    }
+
+    .sold-out-btn {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        padding: 14px 16px;
+        background: #e2e8f0;
+        color: #64748b;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 900;
+        cursor: not-allowed;
+        margin-top: auto;
+    }
+
+    .empty-menu {
+        background: white;
+        border-radius: 20px;
+        padding: 28px;
+        text-align: center;
+        color: #64748b;
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    @media (max-width: 980px) {
+        .menu-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .menu-sidebar {
+            position: static;
+        }
+
+        .category-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .menu-search-wrap {
+            grid-template-columns: 1fr;
+        }
+
+        .menu-heading h1 {
+            font-size: 36px;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .menu-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .add-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .qty-box {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="menu-shell">
+    {% regroup products by category as grouped_products %}
+
+    <div class="menu-layout">
+        <aside class="menu-sidebar">
+            <div class="menu-sidebar-title">Choose Menu</div>
+
+            <div class="category-stack">
+                <a href="{% url 'food_menu' %}"
+                   class="category-link {% if not selected_category and not query %}active-category{% endif %}">
+                    <div class="category-name">All Menu</div>
+                    <div class="category-count">{{ total_products }} items</div>
+                </a>
+
+                {% for cat in category_data %}
+                    <a href="{% url 'food_menu' %}?category={{ cat.category|urlencode }}"
+                       class="category-link {% if selected_category|lower == cat.category|lower %}active-category{% endif %}">
+                        <div class="category-name">{{ cat.category|default:"Uncategorized" }}</div>
+                        <div class="category-count">{{ cat.total }} items</div>
+                    </a>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <div class="menu-main">
+            <div class="menu-main-card">
+                <div class="menu-top-row">
+                    <div class="menu-heading">
+                        <h1>Food Menu</h1>
+                        <p>Add many foods and drinks into one cart, then checkout one customer with one whole receipt.</p>
+                    </div>
+
+                    <a href="{% url 'cart_view' %}" class="cart-link-pill">
+                        Cart ({{ cart_count }})
+                    </a>
+                </div>
+
+                <form method="get" class="menu-search-wrap">
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ query }}"
+                        placeholder="Search a dish, drink, or category..."
+                        class="menu-search-input">
+
+                    {% if selected_category %}
+                        <input type="hidden" name="category" value="{{ selected_category }}">
+                    {% endif %}
+
+                    <button type="submit" class="btn">Search</button>
+
+                    {% if query or selected_category %}
+                        <a href="{% url 'food_menu' %}" class="btn" style="background:#64748b;">Reset</a>
+                    {% endif %}
+                </form>
+
+                <div class="menu-summary-row">
+                    <div class="summary-text">
+                        {% if selected_category %}
+                            Showing category: <strong style="text-transform:capitalize;">{{ selected_category }}</strong>
+                        {% elif query %}
+                            Search results for: <strong>{{ query }}</strong>
+                        {% else %}
+                            Browse foods and drinks by category
+                        {% endif %}
+                    </div>
+
+                    <div class="summary-text">
+                        {{ products|length }} item{{ products|length|pluralize }} available
+                    </div>
+                </div>
+
+                {% if grouped_products %}
+                    {% for group in grouped_products %}
+                        <div class="menu-section">
+                            {% if not selected_category and not query %}
+                                <div class="section-title-row">
+                                    <h2>{{ group.grouper|default:"Uncategorized" }}</h2>
+                                    <p>{{ group.list|length }} item{{ group.list|length|pluralize }}</p>
+                                </div>
+                            {% endif %}
+
+                            <div class="menu-grid">
+                                {% for product in group.list %}
+                                    <div class="food-card">
+                                        {% if product.image %}
+                                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="food-image">
+                                        {% else %}
+                                            <img
+                                                src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='320'><rect width='100%25' height='100%25' fill='%23e2e8f0'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='24' fill='%2364758b'>No Image</text></svg>"
+                                                alt="No Image"
+                                                class="food-image">
+                                        {% endif %}
+
+                                        <div class="food-topline">
+                                            <span class="food-category">{{ product.category|default:"uncategorized" }}</span>
+                                            <span class="food-stock-badge">Stock {{ product.stock }}</span>
+                                        </div>
+
+                                        <div class="food-name">{{ product.name }}</div>
+
+                                        <div class="food-desc">
+                                            {% if product.description %}
+                                                {{ product.description }}
+                                            {% else %}
+                                                Delicious and freshly prepared for your order.
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="food-price-row">
+                                            <div class="food-price">₱{{ product.price }}</div>
+                                            <div class="food-stock">Available now</div>
+                                        </div>
+
+                                        {% if product.stock > 0 %}
+                                            <form method="post" action="{% url 'add_to_cart' product.id %}" class="add-form">
+                                                {% csrf_token %}
+                                                <div class="qty-box">
+                                                    <button type="button" class="qty-btn" onclick="changeMenuQty(this, -1)">−</button>
+                                                    <input type="number" name="quantity" min="1" max="{{ product.stock }}" value="1" class="qty-input">
+                                                    <button type="button" class="qty-btn" onclick="changeMenuQty(this, 1)">+</button>
+                                                </div>
+                                                <button type="submit" class="add-btn" onclick="playSimpleSound()">Add to Cart</button>
+                                            </form>
+                                        {% else %}
+                                            <span class="sold-out-btn">Out of Stock</span>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-menu">
+                        <p>No food found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function changeMenuQty(button, amount) {
+        const form = button.closest('form');
+        const input = form.querySelector('input[name="quantity"]');
+        const max = parseInt(input.max || '1', 10);
+
+        let current = parseInt(input.value || '1', 10);
+        if (isNaN(current)) current = 1;
+
+        current += amount;
+
+        if (current < 1) current = 1;
+        if (current > max) current = max;
+
+        input.value = current;
+    }
+</script>
+{% endblock %}

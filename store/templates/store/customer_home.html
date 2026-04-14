@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        :root {
+            --yellow: #facc15;
+            --yellow-deep: #f59e0b;
+            --dark: #0f172a;
+            --muted: rgba(255,255,255,0.86);
+            --glass: rgba(255,255,255,0.08);
+            --glass-border: rgba(255,255,255,0.14);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            color: white;
+            background:
+                linear-gradient(135deg, rgba(15,23,42,0.78), rgba(30,41,59,0.68)),
+                url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
+            overflow-x: hidden;
+        }
+
+        .page-wrap {
+            min-height: 100vh;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero-shell {
+            max-width: 1450px;
+            margin: 0 auto;
+            border-radius: 34px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(2,6,23,0.42), rgba(15,23,42,0.24));
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(6px);
+            box-shadow: 0 18px 50px rgba(0,0,0,0.28);
+            padding: 40px 36px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 26px;
+            align-items: center;
+        }
+
+        .promo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(250,204,21,0.12);
+            border: 1px solid rgba(250,204,21,0.22);
+            color: #fde68a;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 18px;
+        }
+
+        .hero-title {
+            font-size: 78px;
+            line-height: 0.95;
+            font-weight: 900;
+            max-width: 900px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title .accent {
+            color: #fde68a;
+        }
+
+        .hero-subtitle {
+            max-width: 920px;
+            color: var(--muted);
+            font-size: 22px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .cta-row {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 240px;
+            padding: 20px 30px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 900;
+            transition: 0.2s ease;
+        }
+
+        .cta-btn.primary {
+            background: linear-gradient(135deg, var(--yellow), var(--yellow-deep));
+            color: var(--dark);
+            box-shadow: 0 12px 28px rgba(245,158,11,0.24);
+        }
+
+        .cta-btn.secondary {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border: 1px solid var(--glass-border);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .quick-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .quick-tag {
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.10);
+            color: rgba(255,255,255,0.90);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .feature-section {
+            max-width: 1450px;
+            margin: 22px auto 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 22px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, rgba(250,204,21,0.22), rgba(245,158,11,0.18));
+            border: 1px solid rgba(250,204,21,0.16);
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: rgba(255,255,255,0.82);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .bottom-banner {
+            max-width: 1450px;
+            margin: 22px auto 0;
+            background: linear-gradient(135deg, rgba(220,38,38,0.22), rgba(250,204,21,0.14));
+            border: 1px solid rgba(250,204,21,0.18);
+            border-radius: 24px;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            backdrop-filter: blur(10px);
+        }
+
+        .bottom-text {
+            color: rgba(255,255,255,0.90);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .bottom-text strong {
+            color: #fde68a;
+        }
+
+        .bottom-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 20px;
+            border-radius: 16px;
+            background: white;
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 900;
+            min-width: 190px;
+        }
+
+        @media (max-width: 1250px) {
+            .feature-section {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 980px) {
+            .feature-section {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 56px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .page-wrap {
+                padding: 14px;
+            }
+
+            .hero-shell {
+                padding: 24px 20px;
+            }
+
+            .hero-title {
+                font-size: 40px;
+            }
+
+            .hero-subtitle {
+                font-size: 17px;
+            }
+
+            .cta-row {
+                flex-direction: column;
+            }
+
+            .cta-btn,
+            .bottom-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <section class="hero-shell">
+            <div class="hero-grid">
+                <div>
+                    <div class="promo-badge">Restaurant-Style Ordering • Food First Experience</div>
+
+                    <div class="hero-title">
+                        Big flavors, <span class="accent">fast ordering</span>, happy customers.
+                    </div>
+
+                    <div class="hero-subtitle">
+                        Welcome to a food ordering page inspired by modern restaurant and fast-food websites.
+                        Browse meals, snacks, rice meals, and drinks in a cleaner and more appetizing experience before you start your order.
+                    </div>
+
+                    <div class="cta-row">
+                        <a href="{% url 'food_menu' %}" class="cta-btn primary">Start Ordering</a>
+                        <a href="{% url 'cart_view' %}" class="cta-btn secondary">Open Cart ({{ cart_count }})</a>
+                    </div>
+
+                    <div class="quick-tags">
+                        <span class="quick-tag">Burgers & Meals</span>
+                        <span class="quick-tag">Snacks & Rice Meals</span>
+                        <span class="quick-tag">Coffee & Cold Drinks</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-section">
+            <div class="feature-card">
+                <div class="feature-icon">🍔</div>
+                <h3>Meals</h3>
+                <p>Let customers feel hungry right away with a homepage focused on burgers, sandwiches, rice meals, and snacks.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🍗</div>
+                <h3>Best Sellers</h3>
+                <p>Create a stronger fast-food vibe by guiding customers quickly into the menu like famous restaurant brands do.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🥤</div>
+                <h3>Drinks</h3>
+                <p>Show that drinks are part of the full meal experience, from coffee and milk to juice and lemonade.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Order Now</h3>
+                <p>Customers can move from this landing page to the full ordering menu in one tap with a smooth transition.</p>
+            </div>
+        </section>
+
+        <section class="bottom-banner">
+            <div class="bottom-text">
+                Ready to eat? Tap <strong>Start Ordering</strong> and continue to the full menu for meals, drinks, and checkout.
+            </div>
+            <a href="{% url 'food_menu' %}" class="bottom-btn">Go to Food Menu</a>
+        </section>
+    </div>
+</body>
+</html>

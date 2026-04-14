@@ -1,0 +1,721 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Record Payment{% endblock %}
+
+{% block content %}
+<style>
+    .payment-page {
+        max-width: 1240px;
+        margin: 0 auto;
+    }
+
+    .payment-shell {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 24px;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        position: relative;
+    }
+
+    .order-badge {
+        display: inline-block;
+        background: #f3e8ff;
+        color: #7c3aed;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 8px 12px;
+        border-radius: 999px;
+        margin-bottom: 14px;
+    }
+
+    .order-title {
+        font-size: 34px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .order-sub {
+        color: #64748b;
+        margin-bottom: 18px;
+        line-height: 1.6;
+    }
+
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+    }
+
+    .items-table th {
+        background: #f8fafc;
+    }
+
+    .grand-total-box {
+        margin-top: 16px;
+        text-align: right;
+        font-size: 28px;
+        font-weight: 900;
+        color: #16a34a;
+    }
+
+    .form-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+        color: #64748b;
+        margin-bottom: 22px;
+        line-height: 1.5;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .payment-select,
+    .payment-input,
+    .payment-textarea,
+    .readonly-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        font-size: 16px;
+        outline: none;
+    }
+
+    .readonly-input {
+        background: #f8fafc;
+        font-weight: 700;
+    }
+
+    .method-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .method-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 12px;
+        text-align: center;
+        background: #f8fafc;
+        cursor: pointer;
+        font-weight: 800;
+        user-select: none;
+    }
+
+    .method-card.active {
+        border-color: #7c3aed;
+        background: #f3e8ff;
+        color: #6d28d9;
+    }
+
+    .quick-cash-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+
+    .quick-cash-btn {
+        border: none;
+        border-radius: 12px;
+        background: #e2e8f0;
+        color: #0f172a;
+        padding: 10px 14px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .checkout-panel {
+        margin-top: 22px;
+        background: linear-gradient(135deg, #faf5ff, #f8fafc);
+        border: 1px solid #e9d5ff;
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+    .checkout-value {
+        font-size: 34px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .change-good { color: #16a34a; }
+    .change-warning { color: #dc2626; }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    .save-btn {
+        padding: 14px 20px;
+        background: linear-gradient(135deg, #7c3aed, #6d28d9);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .print-btn {
+        padding: 14px 20px;
+        background: #0f172a;
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .cancel-btn {
+        display: inline-block;
+        padding: 14px 20px;
+        background: #e2e8f0;
+        color: #0f172a;
+        text-decoration: none;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .receipt-box {
+        margin-top: 24px;
+        background: #ffffff;
+        border: 1px dashed #94a3b8;
+        border-radius: 16px;
+        padding: 20px;
+    }
+
+    .receipt-title {
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        color: #0f172a;
+        text-align: center;
+    }
+
+    .receipt-store {
+        text-align: center;
+        font-size: 13px;
+        color: #475569;
+        margin-bottom: 14px;
+        line-height: 1.5;
+    }
+
+    .receipt-divider {
+        border-top: 1px dashed #cbd5e1;
+        margin: 12px 0;
+    }
+
+    .receipt-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 7px 0;
+        color: #334155;
+        font-size: 14px;
+    }
+
+    .receipt-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+    }
+
+    .receipt-items-table th,
+    .receipt-items-table td {
+        font-size: 12px;
+        padding: 6px 0;
+        border-bottom: 1px dashed #e2e8f0;
+        text-align: left;
+    }
+
+    .receipt-items-table th:last-child,
+    .receipt-items-table td:last-child {
+        text-align: right;
+    }
+
+    .receipt-total {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 16px;
+    }
+
+    .receipt-footer {
+        text-align: center;
+        margin-top: 14px;
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+
+    @media print {
+        html, body {
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 210mm;
+            height: 297mm;
+        }
+
+        body * {
+            visibility: hidden !important;
+        }
+
+        #printArea, #printArea * {
+            visibility: visible !important;
+        }
+
+        #printArea {
+            position: fixed;
+            inset: 0;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 210mm;
+            height: 297mm;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+
+        #printReceipt {
+            width: 80mm;
+            min-width: 80mm;
+            max-width: 80mm;
+            background: white;
+            border: 1px dashed #999;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0 auto;
+            padding: 12px 10px;
+            font-size: 12px;
+        }
+
+        #printReceipt .receipt-title { font-size: 18px; }
+        #printReceipt .receipt-store,
+        #printReceipt .receipt-footer,
+        #printReceipt .receipt-items-table th,
+        #printReceipt .receipt-items-table td,
+        #printReceipt .receipt-line {
+            font-size: 11px;
+        }
+    }
+
+    @media (max-width: 920px) {
+        .payment-shell {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="payment-page">
+    <div class="topbar" style="margin-bottom: 18px;">
+        <div>
+            <h1>Record Payment</h1>
+            <p style="color:#64748b; margin-top:6px;">One payment for the whole order receipt.</p>
+        </div>
+        <a href="{% url 'order_list' %}" class="cancel-btn">Back to Orders</a>
+    </div>
+
+    <div class="payment-shell">
+        <div class="payment-card">
+            <span class="order-badge">Payment Checkout</span>
+            <div class="order-title">{{ order.order_number }}</div>
+            <div class="order-sub">
+                Customer: <strong>{{ order.customer_name }}</strong><br>
+                Status: <strong>{{ order.status }}</strong><br>
+                Items: <strong>{{ order.total_items }}</strong>
+            </div>
+
+            <table class="items-table">
+                <tr>
+                    <th>Product</th>
+                    <th>Price per Item</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                </tr>
+                {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>₱{{ item.unit_price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₱{{ item.subtotal }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <div class="grand-total-box">
+                Grand Total: ₱{{ order.total_price }}
+            </div>
+
+            <div id="printArea">
+                <div class="receipt-box" id="printReceipt">
+                    <div class="receipt-title">Smart Inventory</div>
+                    <div class="receipt-store">
+                        Official Receipt<br>
+                        Thank you for your order
+                    </div>
+
+                    <div class="receipt-divider"></div>
+
+                    <div class="receipt-line">
+                        <span>Order No.</span>
+                        <strong>{{ order.order_number }}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Date</span>
+                        <strong>{{ receipt_now|date:"M d, Y" }}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Time</span>
+                        <strong>{{ receipt_now|date:"h:i A" }}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Customer</span>
+                        <strong>{{ order.customer_name }}</strong>
+                    </div>
+
+                    <div class="receipt-divider"></div>
+
+                    <table class="receipt-items-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                                <tr>
+                                    <td>{{ item.product.name }}<br><small>@ ₱{{ item.unit_price }}</small></td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>₱{{ item.subtotal }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="receipt-divider"></div>
+
+                    <div class="receipt-line">
+                        <span>Payment</span>
+                        <strong id="receiptMethod">Cash</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Received</span>
+                        <strong>₱<span id="receiptReceived">0.00</span></strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Change</span>
+                        <strong>₱<span id="receiptChange">0.00</span></strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Note</span>
+                        <strong id="receiptNote">-</strong>
+                    </div>
+
+                    <div class="receipt-divider"></div>
+
+                    <div class="receipt-line receipt-total">
+                        <span>TOTAL</span>
+                        <strong>₱{{ order.total_price }}</strong>
+                    </div>
+
+                    <div class="receipt-footer">
+                        Keep this receipt for your reference.<br>
+                        Payment Status: <strong>PAID</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-card">
+            <div class="form-title">Complete Payment</div>
+            <div class="form-subtitle">
+                Enter payment details for this full order.
+            </div>
+
+            {% if error %}
+                <div class="alert-box" style="margin-bottom: 18px;">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" id="paymentForm">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select name="payment_method" id="paymentMethod" class="payment-select" onchange="syncPaymentMethod(); updateChangeDisplay();">
+                        <option value="CASH">Cash</option>
+                        <option value="GCASH">GCash</option>
+                        <option value="MAYA">Maya</option>
+                    </select>
+
+                    <div class="method-grid">
+                        <div class="method-card active" data-method="CASH" onclick="chooseMethod('CASH')">💵 Cash</div>
+                        <div class="method-card" data-method="GCASH" onclick="chooseMethod('GCASH')">📱 GCash</div>
+                        <div class="method-card" data-method="MAYA" onclick="chooseMethod('MAYA')">💳 Maya</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="amountReceived">Amount Received</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        name="amount_received"
+                        id="amountReceived"
+                        class="payment-input"
+                        placeholder="Enter amount received"
+                        oninput="updateChangeDisplay()"
+                        required>
+
+                    <div class="quick-cash-row">
+                        <button type="button" class="quick-cash-btn" onclick="setExactAmount()">Exact</button>
+                        <button type="button" class="quick-cash-btn" onclick="addCash(20)">+20</button>
+                        <button type="button" class="quick-cash-btn" onclick="addCash(50)">+50</button>
+                        <button type="button" class="quick-cash-btn" onclick="addCash(100)">+100</button>
+                        <button type="button" class="quick-cash-btn" onclick="addCash(200)">+200</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="customerNote">Customer Note</label>
+                    <textarea
+                        id="customerNote"
+                        name="customer_note"
+                        rows="3"
+                        class="payment-textarea"
+                        placeholder="Optional note for receipt"
+                        oninput="syncReceiptNote()"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="calculatedChange">Calculated Change</label>
+                    <input type="text" id="calculatedChange" class="readonly-input" value="0.00" readonly>
+                </div>
+
+                <div class="checkout-panel">
+                    <div style="color:#64748b; margin-bottom:8px;">Total to Collect</div>
+                    <div class="checkout-value">₱<span id="totalAmount">{{ order.total_price }}</span></div>
+                    <div id="changeMessage" style="margin-top:6px; color:#64748b;">Enter payment to see computed change.</div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="save-btn" onclick="submitPaymentForm()">Save Payment</button>
+                    <button type="button" class="print-btn" onclick="window.print()">Print Receipt</button>
+                    <a href="{% url 'order_list' %}" class="cancel-btn">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCSRFToken() {
+        const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        return tokenInput ? tokenInput.value : '';
+    }
+
+    function chooseMethod(method) {
+        const select = document.getElementById('paymentMethod');
+        select.value = method;
+        syncPaymentMethod();
+        updateChangeDisplay();
+    }
+
+    function syncPaymentMethod() {
+        const method = document.getElementById('paymentMethod').value;
+        document.querySelectorAll('.method-card').forEach(card => {
+            card.classList.toggle('active', card.dataset.method === method);
+        });
+
+        const labelMap = {
+            CASH: 'Cash',
+            GCASH: 'GCash',
+            MAYA: 'Maya'
+        };
+        document.getElementById('receiptMethod').innerText = labelMap[method] || method;
+    }
+
+    function syncReceiptNote() {
+        const note = document.getElementById('customerNote').value.trim();
+        document.getElementById('receiptNote').innerText = note || '-';
+    }
+
+    function getTotalAmount() {
+        return parseFloat(document.getElementById('totalAmount').innerText || '0');
+    }
+
+    function getAmountReceived() {
+        return parseFloat(document.getElementById('amountReceived').value || '0');
+    }
+
+    function setExactAmount() {
+        const total = getTotalAmount();
+        document.getElementById('amountReceived').value = total.toFixed(2);
+        updateChangeDisplay();
+    }
+
+    function addCash(amount) {
+        const input = document.getElementById('amountReceived');
+        let current = parseFloat(input.value || '0');
+        if (isNaN(current)) current = 0;
+        input.value = (current + amount).toFixed(2);
+        updateChangeDisplay();
+    }
+
+    async function updateChangeDisplay() {
+        const totalAmount = document.getElementById('totalAmount').innerText;
+        const amountReceived = document.getElementById('amountReceived').value || 0;
+        const paymentMethod = document.getElementById('paymentMethod').value;
+
+        const changeInput = document.getElementById('calculatedChange');
+        const receiptReceived = document.getElementById('receiptReceived');
+        const receiptChange = document.getElementById('receiptChange');
+        const changeMessage = document.getElementById('changeMessage');
+
+        receiptReceived.innerText = Number(amountReceived || 0).toFixed(2);
+
+        try {
+            const response = await fetch("{% url 'calculate_change' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
+                body: JSON.stringify({
+                    total_amount: totalAmount,
+                    amount_received: amountReceived,
+                    payment_method: paymentMethod
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.change !== undefined) {
+                const formatted = Number(data.change).toFixed(2);
+                changeInput.value = formatted;
+                receiptChange.innerText = formatted;
+
+                const total = parseFloat(totalAmount || '0');
+                const received = parseFloat(amountReceived || '0');
+
+                if (received === 0) {
+                    changeMessage.innerText = 'Enter payment to see computed change.';
+                    changeMessage.className = '';
+                    changeMessage.style.color = '#64748b';
+                } else if (received < total) {
+                    changeMessage.innerText = 'Amount received is below the total amount.';
+                    changeMessage.className = 'change-warning';
+                } else {
+                    changeMessage.innerText = paymentMethod === 'CASH'
+                        ? 'Payment is enough. Change is ready.'
+                        : 'Digital payment covers the total amount.';
+                    changeMessage.className = 'change-good';
+                }
+            } else {
+                changeInput.value = "0.00";
+                receiptChange.innerText = "0.00";
+            }
+        } catch (error) {
+            const total = parseFloat(totalAmount || '0');
+            const received = parseFloat(amountReceived || '0');
+            let change = 0;
+
+            if (paymentMethod === 'CASH') {
+                change = received - total;
+                if (change < 0) change = 0;
+            }
+
+            changeInput.value = Number(change).toFixed(2);
+            receiptChange.innerText = Number(change).toFixed(2);
+
+            if (received === 0) {
+                changeMessage.innerText = 'Enter payment to see computed change.';
+                changeMessage.className = '';
+                changeMessage.style.color = '#64748b';
+            } else if (received < total) {
+                changeMessage.innerText = 'Amount received is below the total amount.';
+                changeMessage.className = 'change-warning';
+            } else {
+                changeMessage.innerText = paymentMethod === 'CASH'
+                    ? 'Payment is enough. Change is ready.'
+                    : 'Digital payment covers the total amount.';
+                changeMessage.className = 'change-good';
+            }
+        }
+    }
+
+    function submitPaymentForm() {
+        const total = getTotalAmount();
+        const received = getAmountReceived();
+        const method = document.getElementById('paymentMethod').value;
+        const form = document.getElementById('paymentForm');
+
+        if (!received || received <= 0) {
+            alert('Please enter amount received.');
+            return;
+        }
+
+        if (method === 'CASH' && received < total) {
+            alert('Cash received is less than the total amount.');
+            return;
+        }
+
+        if ((method === 'GCASH' || method === 'MAYA') && received < total) {
+            alert('Digital payment must cover the full amount.');
+            return;
+        }
+
+        playSimpleSound();
+        form.submit();
+    }
+
+    window.addEventListener('load', function () {
+        syncPaymentMethod();
+        syncReceiptNote();
+        updateChangeDisplay();
+    });
+</script>
+{% endblock %}

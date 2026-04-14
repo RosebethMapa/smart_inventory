@@ -1,0 +1,196 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Orders{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        margin-bottom: 22px;
+    }
+
+    .page-subtitle {
+        color: #64748b;
+        margin-top: 8px;
+        line-height: 1.6;
+    }
+
+    .admin-note {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 18px;
+        font-weight: 700;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        margin-bottom: 18px;
+    }
+
+    .order-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .order-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .order-meta {
+        color: #64748b;
+        line-height: 1.6;
+        margin-top: 6px;
+    }
+
+    .status-chip {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .status-chip.pending { background: #fff7ed; color: #c2410c; }
+    .status-chip.preparing { background: #eff6ff; color: #1d4ed8; }
+    .status-chip.completed { background: #ecfdf3; color: #15803d; }
+    .status-chip.cancelled { background: #fef2f2; color: #dc2626; }
+
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+    }
+
+    .items-table th {
+        background: #f8fafc;
+        font-size: 14px;
+    }
+
+    .action-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+    }
+
+    .btn-prepare { background: #2563eb; }
+    .btn-complete { background: #16a34a; }
+    .btn-cancel { background: #dc2626; }
+    .btn-paid { background: #64748b; cursor: default; box-shadow: none; }
+
+    .total-box {
+        margin-top: 14px;
+        text-align: right;
+        font-size: 18px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+</style>
+
+<div class="page-header">
+    <h1>Orders</h1>
+    <p class="page-subtitle">Restaurant order queue and receipt tracking.</p>
+</div>
+
+{% if not is_admin_mode %}
+    <div class="admin-note">
+        Order actions are hidden in customer mode. Unlock admin mode to prepare, complete, cancel, or record payment.
+    </div>
+{% endif %}
+
+{% for order in orders %}
+    <div class="order-card">
+        <div class="order-top">
+            <div>
+                <div class="order-title">{{ order.order_number }} — {{ order.customer_name }}</div>
+                <div class="order-meta">
+                    Created: {{ order.created_at|date:"F j, Y, g:i a" }}<br>
+                    Total Items: {{ order.total_items }}<br>
+                    Stock Deducted: {% if order.stock_deducted %}Yes{% else %}No{% endif %}
+                </div>
+            </div>
+
+            <div>
+                {% if order.status == 'PENDING' %}
+                    <span class="status-chip pending">Pending</span>
+                {% elif order.status == 'PREPARING' %}
+                    <span class="status-chip preparing">Preparing</span>
+                {% elif order.status == 'COMPLETED' %}
+                    <span class="status-chip completed">Completed</span>
+                {% elif order.status == 'CANCELLED' %}
+                    <span class="status-chip cancelled">Cancelled</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="items-table">
+                <tr>
+                    <th>Product</th>
+                    <th>Price per Item</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                </tr>
+                {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>₱{{ item.unit_price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₱{{ item.subtotal }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="total-box">
+            Grand Total: ₱{{ order.total_price }}
+        </div>
+
+        {% if is_admin_mode %}
+        <div class="action-group">
+            {% if order.status == 'PENDING' %}
+                <a href="{% url 'update_order_status' order.id 'PREPARING' %}" class="btn btn-prepare">Prepare</a>
+            {% endif %}
+
+            {% if order.status == 'PREPARING' %}
+                <a href="{% url 'update_order_status' order.id 'COMPLETED' %}" class="btn btn-complete">Complete</a>
+            {% endif %}
+
+            {% if order.status != 'COMPLETED' and order.status != 'CANCELLED' %}
+                <a href="{% url 'update_order_status' order.id 'CANCELLED' %}" class="btn btn-cancel">Cancel</a>
+            {% endif %}
+
+            {% if order.status == 'COMPLETED' %}
+                {% if order.payment %}
+                    <span class="btn btn-paid">Paid</span>
+                {% else %}
+                    <a href="{% url 'record_payment' order.id %}" class="btn" style="background:#7c3aed;">Pay</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+{% empty %}
+    <div class="section">
+        <p class="empty">No orders found.</p>
+    </div>
+{% endfor %}
+{% endblock %}

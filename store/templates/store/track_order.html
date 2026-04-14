@@ -1,0 +1,566 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Track Order{% endblock %}
+
+{% block content %}
+<style>
+    .track-page {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .track-hero {
+        background:
+            linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.94)),
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.22), transparent 35%);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+        margin-bottom: 24px;
+        color: white;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .track-badge {
+        display: inline-block;
+        background: rgba(250, 204, 21, 0.16);
+        color: #fde68a;
+        border: 1px solid rgba(250, 204, 21, 0.22);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .track-title {
+        font-size: 38px;
+        font-weight: 900;
+        margin-bottom: 10px;
+        letter-spacing: -0.5px;
+    }
+
+    .track-subtitle {
+        color: rgba(255,255,255,0.82);
+        line-height: 1.8;
+        font-size: 16px;
+        max-width: 760px;
+    }
+
+    .track-card {
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 24px;
+    }
+
+    .track-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .track-label {
+        display: block;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .track-note {
+        margin-top: 10px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .result-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .meta-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 18px;
+    }
+
+    .meta-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 800;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+    }
+
+    .meta-value {
+        font-size: 18px;
+        font-weight: 900;
+        color: #0f172a;
+        word-break: break-word;
+    }
+
+    .status-pill {
+        display: inline-block;
+        padding: 9px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .status-pending {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .status-preparing {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .status-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .progress-shell {
+        background: linear-gradient(135deg, #ffffff, #f8fafc);
+        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        padding: 22px;
+        margin-bottom: 24px;
+    }
+
+    .progress-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .progress-title {
+        font-size: 22px;
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .progress-subtitle {
+        color: #64748b;
+        margin-top: 4px;
+        line-height: 1.6;
+    }
+
+    .progress-track {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .progress-line {
+        position: absolute;
+        left: 10%;
+        right: 10%;
+        top: 26px;
+        height: 6px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        z-index: 1;
+    }
+
+    .progress-line-fill {
+        position: absolute;
+        left: 10%;
+        top: 26px;
+        height: 6px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #2563eb, #16a34a);
+        z-index: 2;
+        transition: width 0.3s ease;
+    }
+
+    .progress-step {
+        position: relative;
+        z-index: 3;
+        text-align: center;
+    }
+
+    .step-circle {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 12px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 900;
+        border: 3px solid #cbd5e1;
+        background: white;
+        color: #94a3b8;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .step-title {
+        font-size: 17px;
+        font-weight: 900;
+        color: #64748b;
+        margin-bottom: 6px;
+    }
+
+    .step-desc {
+        font-size: 13px;
+        line-height: 1.6;
+        color: #94a3b8;
+        max-width: 220px;
+        margin: 0 auto;
+    }
+
+    .progress-step.active .step-circle,
+    .progress-step.done .step-circle {
+        border-color: #2563eb;
+        color: white;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+
+    .progress-step.done .step-circle {
+        border-color: #16a34a;
+        background: linear-gradient(135deg, #16a34a, #15803d);
+    }
+
+    .progress-step.active .step-title,
+    .progress-step.done .step-title {
+        color: #0f172a;
+    }
+
+    .progress-step.active .step-desc,
+    .progress-step.done .step-desc {
+        color: #475569;
+    }
+
+    .cancelled-box {
+        background: linear-gradient(135deg, #fff1f2, #fef2f2);
+        border: 1px solid #fecdd3;
+        border-radius: 22px;
+        padding: 22px;
+        margin-bottom: 24px;
+    }
+
+    .cancelled-title {
+        font-size: 22px;
+        font-weight: 900;
+        color: #b91c1c;
+        margin-bottom: 8px;
+    }
+
+    .cancelled-text {
+        color: #7f1d1d;
+        line-height: 1.7;
+    }
+
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+    }
+
+    .items-table th {
+        background: #f8fafc;
+        font-size: 14px;
+    }
+
+    .total-box {
+        margin-top: 18px;
+        text-align: right;
+        font-size: 30px;
+        font-weight: 900;
+        color: #16a34a;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: #64748b;
+        padding: 20px 10px;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 980px) {
+        .result-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .progress-track {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .progress-line,
+        .progress-line-fill {
+            display: none;
+        }
+
+        .progress-step {
+            text-align: left;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .step-circle {
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .step-desc {
+            margin: 0;
+            max-width: none;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .track-form {
+            grid-template-columns: 1fr;
+        }
+
+        .result-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .track-title {
+            font-size: 30px;
+        }
+    }
+</style>
+
+<div class="track-page">
+    <div class="track-hero">
+        <div class="track-badge">Live Order Status</div>
+        <div class="track-title">Track Your Order</div>
+        <div class="track-subtitle">
+            Enter your order number to check the latest status of your order and view your order details in real time.
+        </div>
+    </div>
+
+    <div class="track-card">
+        <form method="post" class="track-form">
+            {% csrf_token %}
+            <div>
+                <label for="order_number" class="track-label">Order Number</label>
+                <input
+                    type="text"
+                    id="order_number"
+                    name="order_number"
+                    value="{{ query }}"
+                    placeholder="Example: ORD-00027"
+                    required>
+                <div class="track-note">
+                    You can find your order number on the order success page or your payment receipt.
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Track Order</button>
+        </form>
+    </div>
+
+    {% if searched %}
+        {% if order %}
+            <div class="track-card">
+                <div class="result-grid">
+                    <div class="meta-box">
+                        <div class="meta-label">Order Number</div>
+                        <div class="meta-value">{{ order.order_number }}</div>
+                    </div>
+
+                    <div class="meta-box">
+                        <div class="meta-label">Customer</div>
+                        <div class="meta-value">{{ order.customer_name }}</div>
+                    </div>
+
+                    <div class="meta-box">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value">
+                            {% if order.status == 'PENDING' %}
+                                <span class="status-pill status-pending">Pending</span>
+                            {% elif order.status == 'PREPARING' %}
+                                <span class="status-pill status-preparing">Preparing</span>
+                            {% elif order.status == 'COMPLETED' %}
+                                <span class="status-pill status-completed">Completed</span>
+                            {% elif order.status == 'CANCELLED' %}
+                                <span class="status-pill status-cancelled">Cancelled</span>
+                            {% else %}
+                                {{ order.status }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="meta-box">
+                        <div class="meta-label">Created At</div>
+                        <div class="meta-value">{{ order.created_at|date:"F j, Y, g:i a" }}</div>
+                    </div>
+
+                    <div class="meta-box">
+                        <div class="meta-label">Total Items</div>
+                        <div class="meta-value">{{ order.total_items }}</div>
+                    </div>
+
+                    <div class="meta-box">
+                        <div class="meta-label">Email Updates</div>
+                        <div class="meta-value">
+                            {% if order.wants_email_updates and order.customer_email %}
+                                Enabled
+                            {% else %}
+                                Not Enabled
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if order.status == 'CANCELLED' %}
+                    <div class="cancelled-box">
+                        <div class="cancelled-title">Order Cancelled</div>
+                        <div class="cancelled-text">
+                            This order has been cancelled and will no longer continue in the preparation flow.
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="progress-shell">
+                        <div class="progress-top">
+                            <div>
+                                <div class="progress-title">Order Progress</div>
+                                <div class="progress-subtitle">
+                                    Follow each stage of your order from confirmation to completion.
+                                </div>
+                            </div>
+
+                            {% if order.status == 'PENDING' %}
+                                <span class="status-pill status-pending">Waiting in Queue</span>
+                            {% elif order.status == 'PREPARING' %}
+                                <span class="status-pill status-preparing">Currently Preparing</span>
+                            {% elif order.status == 'COMPLETED' %}
+                                <span class="status-pill status-completed">Ready / Completed</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="progress-track">
+                            <div class="progress-line"></div>
+
+                            {% if order.status == 'PENDING' %}
+                                <div class="progress-line-fill" style="width: 0%;"></div>
+                            {% elif order.status == 'PREPARING' %}
+                                <div class="progress-line-fill" style="width: 40%;"></div>
+                            {% elif order.status == 'COMPLETED' %}
+                                <div class="progress-line-fill" style="width: 80%;"></div>
+                            {% else %}
+                                <div class="progress-line-fill" style="width: 0%;"></div>
+                            {% endif %}
+
+                            <div class="progress-step {% if order.status == 'PENDING' %}active{% elif order.status == 'PREPARING' or order.status == 'COMPLETED' %}done{% endif %}">
+                                <div class="step-circle">
+                                    {% if order.status == 'PREPARING' or order.status == 'COMPLETED' %}
+                                        ✓
+                                    {% else %}
+                                        1
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="step-title">Pending</div>
+                                    <div class="step-desc">
+                                        Your order has been received and is waiting to be processed.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="progress-step {% if order.status == 'PREPARING' %}active{% elif order.status == 'COMPLETED' %}done{% endif %}">
+                                <div class="step-circle">
+                                    {% if order.status == 'COMPLETED' %}
+                                        ✓
+                                    {% else %}
+                                        2
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="step-title">Preparing</div>
+                                    <div class="step-desc">
+                                        The kitchen or admin is currently preparing your order.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="progress-step {% if order.status == 'COMPLETED' %}done active{% endif %}">
+                                <div class="step-circle">
+                                    {% if order.status == 'COMPLETED' %}
+                                        ✓
+                                    {% else %}
+                                        3
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="step-title">Completed</div>
+                                    <div class="step-desc">
+                                        Your order is finished and has reached the final stage.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <table class="items-table">
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Subtotal</th>
+                    </tr>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>₱{{ item.unit_price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₱{{ item.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+
+                <div class="total-box">
+                    Total: ₱{{ order.total_price }}
+                </div>
+            </div>
+        {% else %}
+            <div class="track-card">
+                <div class="empty-state">
+                    No matching order was found for <strong>{{ query }}</strong>.
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="track-card">
+            <div class="empty-state">
+                Enter your order number above to check your latest order status.
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,602 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-subtitle {
+        color: #64748b;
+        margin-top: 6px;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .kpi-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px 22px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-left: 5px solid #2563eb;
+    }
+
+    .kpi-card.red {
+        border-left-color: #dc2626;
+    }
+
+    .kpi-card.green {
+        border-left-color: #16a34a;
+    }
+
+    .kpi-card.orange {
+        border-left-color: #f59e0b;
+    }
+
+    .kpi-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+
+    .kpi-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.1;
+        margin-bottom: 8px;
+    }
+
+    .kpi-note {
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .dashboard-main-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .section-head p {
+        color: #64748b;
+        margin-top: 6px;
+    }
+
+    .action-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .badge-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .mini-badge {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .alert-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .alert-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border: 1px solid #dbe4ee;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .alert-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .alert-item-message {
+        color: #991b1b;
+        font-weight: 700;
+        margin-bottom: 6px;
+        line-height: 1.4;
+    }
+
+    .alert-item-time {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .snapshot-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .snapshot-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        background: #f8fafc;
+    }
+
+    .snapshot-label {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 6px;
+    }
+
+    .snapshot-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    .snapshot-note {
+        color: #64748b;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .chart-card h3 {
+        margin-bottom: 14px;
+        font-size: 18px;
+        color: #0f172a;
+    }
+
+    .chart-wrap {
+        position: relative;
+        min-height: 280px;
+    }
+
+    .empty-chart {
+        min-height: 240px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #64748b;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    .muted-text {
+        color: #64748b;
+    }
+
+    .sales-text {
+        color: #16a34a;
+    }
+
+    @media (max-width: 980px) {
+        .dashboard-main-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .alert-item {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .alert-item .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="topbar">
+    <div>
+        <h1>Dashboard</h1>
+        <p class="dashboard-subtitle">Overview of inventory, sales, alerts, and recent activity.</p>
+    </div>
+</div>
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">Total Products</div>
+        <div class="kpi-value">{{ total_products }}</div>
+        <div class="kpi-note">Items currently in the system</div>
+    </div>
+
+    <div class="kpi-card red">
+        <div class="kpi-label">Low Stock Products</div>
+        <div class="kpi-value">{{ low_stock_products }}</div>
+        <div class="kpi-note">Need monitoring or restocking</div>
+    </div>
+
+    <div class="kpi-card green">
+        <div class="kpi-label">Total Sales</div>
+        <div class="kpi-value sales-text">₱{{ total_sales }}</div>
+        <div class="kpi-note">Based on recorded transactions</div>
+    </div>
+
+    <div class="kpi-card orange">
+        <div class="kpi-label">Pending Orders</div>
+        <div class="kpi-value">{{ pending_orders }}</div>
+        <div class="kpi-note">Orders waiting to be prepared</div>
+    </div>
+</div>
+
+<div class="dashboard-main-grid">
+    <div class="section">
+        <div class="section-head">
+            <div>
+                <h2 style="margin: 0;">Unread Alerts</h2>
+                <p>Important inventory and order notifications.</p>
+            </div>
+
+            <div class="action-row">
+                <button type="button" class="btn" onclick="speakAllAlerts()">Speak Alerts</button>
+                <button type="button" class="btn" onclick="stopVoiceAlerts()" style="background:#dc2626;">Stop Voice</button>
+                <a href="{% url 'clear_all_alerts' %}"
+                   class="btn"
+                   style="background:#475569;"
+                   onclick="playActionAndGo(event, this.href, 'normal')">
+                    Clear Unread
+                </a>
+                <a href="{% url 'delete_all_alerts' %}"
+                   class="btn"
+                   style="background:#b91c1c;"
+                   onclick="return confirm('Delete all alerts permanently?');">
+                    Delete All
+                </a>
+            </div>
+        </div>
+
+        <div class="badge-row">
+            <span class="mini-badge">Unread: {{ alerts|length }}</span>
+            <span class="mini-badge">Low Stock: {{ low_stock_products }}</span>
+            <span class="mini-badge">Pending Orders: {{ pending_orders }}</span>
+        </div>
+
+        <div class="alert-list">
+            {% for alert in alerts|slice:":3" %}
+                <div class="alert-item voice-alert">
+                    <div class="alert-item-content">
+                        <div class="alert-item-message">{{ alert.message }}</div>
+                        <div class="alert-item-time">{{ alert.created_at|date:"F j, Y, g:i a" }}</div>
+                    </div>
+
+                    <a href="{% url 'mark_alert_read' alert.id %}"
+                       class="btn"
+                       style="background:#16a34a; white-space:nowrap;"
+                       onclick="playActionAndGo(event, this.href, 'normal')">
+                        Mark Read
+                    </a>
+                </div>
+            {% empty %}
+                <p class="empty">No unread alerts right now.</p>
+            {% endfor %}
+        </div>
+
+        {% if alerts|length > 3 %}
+            <div style="margin-top: 14px;">
+                <a href="{% url 'alert_list' %}" class="btn" style="background:#475569;">View All Alerts</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <div class="section-head" style="margin-bottom: 14px;">
+            <div>
+                <h2 style="margin: 0;">Today's Snapshot</h2>
+                <p>Quick operational overview.</p>
+            </div>
+        </div>
+
+        <div class="snapshot-list">
+            <div class="snapshot-item">
+                <div class="snapshot-label">Unread Alerts</div>
+                <div class="snapshot-value">{{ alerts|length }}</div>
+                <div class="snapshot-note">Latest issues needing attention</div>
+            </div>
+
+            <div class="snapshot-item">
+                <div class="snapshot-label">Stock Status</div>
+                <div class="snapshot-value">
+                    {% if low_stock_products > 0 %}
+                        {{ low_stock_products }} item{{ low_stock_products|pluralize }}
+                    {% else %}
+                        Stable
+                    {% endif %}
+                </div>
+                <div class="snapshot-note">Based on reorder levels</div>
+            </div>
+
+            <div class="snapshot-item">
+                <div class="snapshot-label">Orders Queue</div>
+                <div class="snapshot-value">
+                    {% if pending_orders > 0 %}
+                        {{ pending_orders }} waiting
+                    {% else %}
+                        Clear
+                    {% endif %}
+                </div>
+                <div class="snapshot-note">Preparation workload right now</div>
+            </div>
+
+            <div class="snapshot-item">
+                <div class="snapshot-label">Sales Activity</div>
+                <div class="snapshot-value">
+                    {% if total_sales %}
+                        ₱{{ total_sales }}
+                    {% else %}
+                        ₱0
+                    {% endif %}
+                </div>
+                <div class="snapshot-note">Recorded transaction total</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-head">
+        <div>
+            <h2 style="margin: 0;">Dashboard Insights</h2>
+            <p>Trends and activity based on your recorded data.</p>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h3>Daily Sales Trend</h3>
+            <div class="chart-wrap" id="dailySalesWrap">
+                <canvas id="dailySalesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Weekly Order Volume</h3>
+            <div class="chart-wrap" id="weeklyOrderWrap">
+                <canvas id="weeklyOrderChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Top 5 Low Stock Products</h3>
+            <div class="chart-wrap" id="lowStockWrap">
+                <canvas id="lowStockChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Payment Method Usage</h3>
+            <div class="chart-wrap" id="paymentMethodWrap">
+                <canvas id="paymentMethodChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-head">
+        <div>
+            <h2 style="margin: 0;">Recent Transactions</h2>
+            <p>Latest recorded sales activity.</p>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Time</th>
+            </tr>
+            {% for txn in transactions %}
+            <tr>
+                <td>{{ txn.product.name }}</td>
+                <td>{{ txn.quantity }}</td>
+                <td>₱{{ txn.total_price }}</td>
+                <td>{{ txn.transaction_time|date:"F j, Y, g:i a" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No transactions recorded yet.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+            speechSynthesis.speak(utterance);
+        }
+    }
+
+    function speakAllAlerts() {
+        const alerts = document.querySelectorAll('.voice-alert .alert-item-message');
+
+        if (!('speechSynthesis' in window)) {
+            alert('Speech synthesis is not supported in this browser.');
+            return;
+        }
+
+        if (alerts.length === 0) {
+            speakText('There are no unread alerts.');
+            return;
+        }
+
+        speechSynthesis.cancel();
+
+        alerts.forEach((alertBox, index) => {
+            const text = alertBox.innerText.trim();
+            setTimeout(() => {
+                speakText("Inventory alert. " + text);
+            }, index * 2200);
+        });
+    }
+
+    function stopVoiceAlerts() {
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+        }
+    }
+
+    function renderEmptyState(wrapperId, message) {
+        const wrap = document.getElementById(wrapperId);
+        if (!wrap) return;
+        wrap.innerHTML = '<div class="empty-chart">' + message + '</div>';
+    }
+
+    window.onload = function () {
+        const dailySalesLabels = {{ daily_sales_labels|safe }};
+        const dailySalesData = {{ daily_sales_data|safe }};
+
+        const weeklyOrderLabels = {{ weekly_order_labels|safe }};
+        const weeklyOrderData = {{ weekly_order_data|safe }};
+
+        const lowStockLabels = {{ low_stock_labels|safe }};
+        const lowStockData = {{ low_stock_data|safe }};
+
+        const paymentMethodLabels = {{ payment_method_labels|safe }};
+        const paymentMethodData = {{ payment_method_data|safe }};
+
+        if (dailySalesLabels.length && dailySalesData.length) {
+            new Chart(document.getElementById('dailySalesChart'), {
+                type: 'line',
+                data: {
+                    labels: dailySalesLabels,
+                    datasets: [{
+                        label: 'Sales',
+                        data: dailySalesData,
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        } else {
+            renderEmptyState('dailySalesWrap', 'No sales data in the last 7 days.');
+        }
+
+        if (weeklyOrderLabels.length && weeklyOrderData.length) {
+            new Chart(document.getElementById('weeklyOrderChart'), {
+                type: 'bar',
+                data: {
+                    labels: weeklyOrderLabels,
+                    datasets: [{
+                        label: 'Orders',
+                        data: weeklyOrderData,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        } else {
+            renderEmptyState('weeklyOrderWrap', 'No order data available yet.');
+        }
+
+        if (lowStockLabels.length && lowStockData.length) {
+            new Chart(document.getElementById('lowStockChart'), {
+                type: 'bar',
+                data: {
+                    labels: lowStockLabels,
+                    datasets: [{
+                        label: 'Remaining Stock',
+                        data: lowStockData,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        } else {
+            renderEmptyState('lowStockWrap', 'No low-stock products right now.');
+        }
+
+        if (paymentMethodLabels.length && paymentMethodData.length) {
+            new Chart(document.getElementById('paymentMethodChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: paymentMethodLabels,
+                    datasets: [{
+                        label: 'Payments',
+                        data: paymentMethodData,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        } else {
+            renderEmptyState('paymentMethodWrap', 'No payment records available yet.');
+        }
+    };
+</script>
+{% endblock %}

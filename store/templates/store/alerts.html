@@ -1,0 +1,102 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Alerts{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        margin-bottom: 22px;
+    }
+
+    .page-subtitle {
+        color: #64748b;
+        margin-top: 8px;
+        line-height: 1.6;
+    }
+
+    .filter-bar {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr auto auto;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .alerts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .alert-card {
+        background: #fff;
+        border: 1px solid #fecaca;
+        border-left: 5px solid #ef4444;
+        border-radius: 16px;
+        padding: 16px 18px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .alert-message {
+        color: #991b1b;
+        font-weight: 800;
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+
+    .alert-meta {
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+        .filter-bar {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <h1>Alerts</h1>
+    <p class="page-subtitle">Review inventory, order, payment, and system activity alerts.</p>
+</div>
+
+<div class="section">
+    <div class="page-actions">
+        <a href="{% url 'clear_all_alerts' %}" class="btn" style="background:#475569;">Clear Unread</a>
+        <a href="{% url 'delete_all_alerts' %}"
+           class="btn"
+           style="background:#dc2626;"
+           onclick="return confirm('Delete all alerts permanently?');">
+            Delete All
+        </a>
+    </div>
+
+    <form method="get" class="filter-bar">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search alert message or type...">
+        <input type="date" name="date" value="{{ selected_date }}">
+        <button type="submit" class="btn">Search</button>
+        <a href="{% url 'alert_list' %}" class="btn" style="background:#64748b;">Reset</a>
+    </form>
+
+    <div class="alerts-list">
+        {% for alert in alerts %}
+            <div class="alert-card">
+                <div class="alert-message">{{ alert.message }}</div>
+                <div class="alert-meta">
+                    {{ alert.alert_type }} • {{ alert.created_at|date:"F j, Y, g:i a" }}
+                </div>
+            </div>
+        {% empty %}
+            <p class="empty">No alerts found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

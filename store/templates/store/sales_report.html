@@ -1,0 +1,475 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Sales Report{% endblock %}
+
+{% block content %}
+<style>
+    .report-page {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+
+    .report-subtitle {
+        color: #64748b;
+        margin-top: 8px;
+        line-height: 1.6;
+    }
+
+    .filter-card,
+    .summary-card,
+    .table-card,
+    .breakdown-card,
+    .top-card {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 22px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr 1fr auto auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .hero-card {
+        background: linear-gradient(135deg, #0f172a, #1e3a8a);
+        color: white;
+        border-radius: 24px;
+        padding: 24px;
+        margin-bottom: 22px;
+        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    .hero-title {
+        font-size: 30px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .hero-subtitle {
+        color: rgba(255,255,255,0.82);
+        line-height: 1.7;
+        margin-bottom: 16px;
+    }
+
+    .hero-total {
+        font-size: 46px;
+        font-weight: 900;
+        color: #86efac;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .summary-label {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        letter-spacing: 0.4px;
+    }
+
+    .summary-value {
+        font-size: 30px;
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .summary-note {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .money-green { color: #16a34a; }
+    .money-blue { color: #2563eb; }
+    .money-violet { color: #7c3aed; }
+
+    .section-title {
+        font-size: 24px;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 14px;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    .sales-table,
+    .top-table,
+    .breakdown-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .sales-table th,
+    .sales-table td,
+    .top-table th,
+    .top-table td,
+    .breakdown-table th,
+    .breakdown-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .sales-table th,
+    .top-table th,
+    .breakdown-table th {
+        background: #f8fafc;
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    .method-cash,
+    .method-gcash,
+    .method-maya {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .method-cash {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .method-gcash {
+        background: #ecfdf3;
+        color: #15803d;
+    }
+
+    .method-maya {
+        background: #faf5ff;
+        color: #7c3aed;
+    }
+
+    .report-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .meta-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .meta-label {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .meta-value {
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    @media print {
+        .no-print,
+        .sidebar,
+        .toast-container {
+            display: none !important;
+        }
+
+        .main {
+            padding: 0 !important;
+        }
+
+        .report-page {
+            max-width: 100%;
+        }
+
+        body {
+            background: white !important;
+        }
+
+        .hero-card,
+        .summary-card,
+        .table-card,
+        .top-card,
+        .breakdown-card,
+        .filter-card {
+            box-shadow: none !important;
+            border: 1px solid #d1d5db !important;
+            break-inside: avoid;
+        }
+
+        .hero-card {
+            color: #111827 !important;
+            background: white !important;
+        }
+
+        .hero-total {
+            color: #111827 !important;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .summary-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 900px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .report-meta {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="report-page">
+    <div class="report-header no-print">
+        <div>
+            <h1>Sales Report</h1>
+            <p class="report-subtitle">
+                Daily, weekly, and custom remittance summary with printable organized sales records.
+            </p>
+        </div>
+
+        <button onclick="window.print()" class="btn">Print Report</button>
+    </div>
+
+    <div class="filter-card no-print">
+        <form method="get" class="filter-grid">
+            <div>
+                <label for="period" style="display:block; font-weight:800; margin-bottom:8px;">Report Period</label>
+                <select name="period" id="period" onchange="toggleCustomDates()">
+                    <option value="daily" {% if period == 'daily' %}selected{% endif %}>Daily</option>
+                    <option value="weekly" {% if period == 'weekly' %}selected{% endif %}>Weekly</option>
+                    <option value="custom" {% if period == 'custom' %}selected{% endif %}>Custom Range</option>
+                </select>
+            </div>
+
+            <div id="startDateWrap">
+                <label for="start_date" style="display:block; font-weight:800; margin-bottom:8px;">Start Date</label>
+                <input type="date" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
+            </div>
+
+            <div id="endDateWrap">
+                <label for="end_date" style="display:block; font-weight:800; margin-bottom:8px;">End Date</label>
+                <input type="date" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
+            </div>
+
+            <button type="submit" class="btn">Generate</button>
+            <a href="{% url 'sales_report' %}" class="btn" style="background:#64748b;">Reset</a>
+        </form>
+    </div>
+
+    <div class="hero-card">
+        <div class="hero-title">Remittance Summary</div>
+        <div class="hero-subtitle">
+            {% if period == 'daily' %}
+                Daily sales report for <strong>{{ start_date|date:"F j, Y" }}</strong>
+            {% elif period == 'weekly' %}
+                Weekly sales report from <strong>{{ start_date|date:"F j, Y" }}</strong> to <strong>{{ end_date|date:"F j, Y" }}</strong>
+            {% else %}
+                Custom sales report from <strong>{{ start_date|date:"F j, Y" }}</strong> to <strong>{{ end_date|date:"F j, Y" }}</strong>
+            {% endif %}
+        </div>
+        <div class="hero-total">₱{{ total_sales }}</div>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-label">Total Sales</div>
+            <div class="summary-value money-green">₱{{ total_sales }}</div>
+            <div class="summary-note">Full income for selected period</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Total Paid Orders</div>
+            <div class="summary-value">{{ orders_count }}</div>
+            <div class="summary-note">Number of recorded payments</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Items Sold</div>
+            <div class="summary-value">{{ items_sold }}</div>
+            <div class="summary-note">Total quantity sold</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Cash Sales</div>
+            <div class="summary-value money-blue">₱{{ cash_sales }}</div>
+            <div class="summary-note">Cash remittance total</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">GCash Sales</div>
+            <div class="summary-value money-green">₱{{ gcash_sales }}</div>
+            <div class="summary-note">GCash collections</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Maya Sales</div>
+            <div class="summary-value money-violet">₱{{ maya_sales }}</div>
+            <div class="summary-note">Maya collections</div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="section-title">Printable Sales Record</div>
+
+        <div class="report-meta">
+            <div class="meta-box">
+                <div class="meta-label">Report Coverage</div>
+                <div class="meta-value">{{ start_date|date:"F j, Y" }} to {{ end_date|date:"F j, Y" }}</div>
+            </div>
+
+            <div class="meta-box">
+                <div class="meta-label">Prepared Summary</div>
+                <div class="meta-value">{{ orders_count }} paid order(s) • {{ items_sold }} item(s) sold</div>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="sales-table">
+                <tr>
+                    <th>Order No.</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Method</th>
+                    <th>Amount Received</th>
+                    <th>Change</th>
+                    <th>Total</th>
+                    <th>Paid At</th>
+                </tr>
+                {% for record in payment_records %}
+                <tr>
+                    <td>{{ record.order_number }}</td>
+                    <td>{{ record.customer_name }}</td>
+                    <td>{{ record.items }}</td>
+                    <td>
+                        {% if record.payment_method == 'CASH' %}
+                            <span class="method-cash">Cash</span>
+                        {% elif record.payment_method == 'GCASH' %}
+                            <span class="method-gcash">GCash</span>
+                        {% else %}
+                            <span class="method-maya">Maya</span>
+                        {% endif %}
+                    </td>
+                    <td>₱{{ record.amount_received }}</td>
+                    <td>₱{{ record.change }}</td>
+                    <td><strong>₱{{ record.total_amount }}</strong></td>
+                    <td>{{ record.paid_at|date:"F j, Y, g:i a" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align:center; color:#64748b;">No payment records found for this period.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div class="top-card">
+        <div class="section-title">Top Selling Products</div>
+        <div class="table-wrap">
+            <table class="top-table">
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity Sold</th>
+                    <th>Total Sales</th>
+                </tr>
+                {% for item in top_products %}
+                <tr>
+                    <td>{{ item.product__name }}</td>
+                    <td>{{ item.total_qty }}</td>
+                    <td>₱{{ item.total_sales }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align:center; color:#64748b;">No sales data for this period.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div class="breakdown-card">
+        <div class="section-title">Daily Breakdown</div>
+        <div class="table-wrap">
+            <table class="breakdown-table">
+                <tr>
+                    <th>Date</th>
+                    <th>Total Orders</th>
+                    <th>Total Sales</th>
+                </tr>
+                {% for row in daily_breakdown %}
+                <tr>
+                    <td>{{ row.day|date:"F j, Y" }}</td>
+                    <td>{{ row.total_orders }}</td>
+                    <td>₱{{ row.total_sales }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align:center; color:#64748b;">No payment records found.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleCustomDates() {
+        const period = document.getElementById('period').value;
+        const startWrap = document.getElementById('startDateWrap');
+        const endWrap = document.getElementById('endDateWrap');
+
+        if (period === 'custom') {
+            startWrap.style.display = 'block';
+            endWrap.style.display = 'block';
+        } else {
+            startWrap.style.display = 'none';
+            endWrap.style.display = 'none';
+        }
+    }
+
+    window.addEventListener('load', toggleCustomDates);
+</script>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Payments{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        margin-bottom: 22px;
+    }
+
+    .page-subtitle {
+        color: #64748b;
+        margin-top: 8px;
+        line-height: 1.6;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        margin-bottom: 18px;
+    }
+
+    .payment-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .payment-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .payment-meta {
+        color: #64748b;
+        line-height: 1.6;
+        margin-top: 6px;
+    }
+
+    .method-chip {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .method-cash { background: #eff6ff; color: #1d4ed8; }
+    .method-gcash { background: #ecfdf3; color: #15803d; }
+    .method-maya { background: #faf5ff; color: #7c3aed; }
+
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+    }
+
+    .items-table th {
+        background: #f8fafc;
+    }
+
+    .totals-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+</style>
+
+<div class="page-header">
+    <h1>Payment History</h1>
+    <p class="page-subtitle">Whole-order payments with multi-item receipt details.</p>
+</div>
+
+{% for payment in payments %}
+    <div class="payment-card">
+        <div class="payment-top">
+            <div>
+                <div class="payment-title">{{ payment.order.order_number }} — {{ payment.customer_name }}</div>
+                <div class="payment-meta">
+                    Paid At: {{ payment.paid_at|date:"F j, Y, g:i a" }}<br>
+                    Method:
+                    {% if payment.payment_method == 'CASH' %}
+                        <span class="method-chip method-cash">Cash</span>
+                    {% elif payment.payment_method == 'GCASH' %}
+                        <span class="method-chip method-gcash">GCash</span>
+                    {% else %}
+                        <span class="method-chip method-maya">Maya</span>
+                    {% endif %}
+                    <br>
+                    Note: {% if payment.note %}{{ payment.note }}{% else %}-{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <table class="items-table">
+            <tr>
+                <th>Product</th>
+                <th>Price per Item</th>
+                <th>Qty</th>
+                <th>Subtotal</th>
+            </tr>
+            {% for item in payment.order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>₱{{ item.unit_price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₱{{ item.subtotal }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <div class="totals-row">
+            <span>Total: ₱{{ payment.total_amount }}</span>
+            <span>Received: ₱{{ payment.amount_received }}</span>
+            <span>Change: ₱{{ payment.change }}</span>
+        </div>
+    </div>
+{% empty %}
+    <div class="section">
+        <p class="empty">No payments found.</p>
+    </div>
+{% endfor %}
+{% endblock %}

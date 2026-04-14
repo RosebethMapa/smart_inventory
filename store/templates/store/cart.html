@@ -1,0 +1,442 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Cart Checkout{% endblock %}
+
+{% block content %}
+<style>
+    .cart-page {
+        max-width: 1480px;
+        margin: 0 auto;
+    }
+
+    .cart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+
+    .cart-header h1 {
+        font-size: 42px;
+        line-height: 1.05;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .cart-header p {
+        color: #64748b;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .cart-header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .cart-shell {
+        display: grid;
+        grid-template-columns: 1.4fr 0.85fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .cart-card,
+    .summary-card {
+        background: #ffffff;
+        border-radius: 26px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        border: 1px solid #edf2f7;
+    }
+
+    .cart-card {
+        padding: 22px;
+    }
+
+    .summary-card {
+        padding: 22px;
+        position: sticky;
+        top: 20px;
+    }
+
+    .card-title {
+        font-size: 30px;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 18px;
+    }
+
+    .cart-items {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .cart-item {
+        display: grid;
+        grid-template-columns: 110px 1fr auto;
+        gap: 16px;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #f8fafc;
+    }
+
+    .cart-image {
+        width: 110px;
+        height: 110px;
+        object-fit: cover;
+        border-radius: 16px;
+    }
+
+    .cart-name {
+        font-size: 28px;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 8px;
+        text-transform: capitalize;
+        line-height: 1.1;
+    }
+
+    .cart-meta {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .cart-meta strong {
+        color: #0f172a;
+    }
+
+    .cart-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .qty-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .qty-input {
+        width: 84px;
+        text-align: center;
+        font-weight: 800;
+        background: white;
+    }
+
+    .remove-btn {
+        background: #dc2626;
+    }
+
+    .remove-btn:hover {
+        background: #b91c1c;
+    }
+
+    .summary-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 18px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 0;
+        border-bottom: 1px dashed #cbd5e1;
+    }
+
+    .summary-row:last-child {
+        border-bottom: none;
+    }
+
+    .summary-label {
+        color: #475569;
+        font-weight: 700;
+        font-size: 15px;
+    }
+
+    .summary-value {
+        font-weight: 900;
+        color: #0f172a;
+        font-size: 17px;
+    }
+
+    .grand-total {
+        font-size: 34px;
+        font-weight: 900;
+        color: #16a34a;
+    }
+
+    .checkout-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 18px;
+    }
+
+    .checkout-box label {
+        display: block;
+        font-weight: 800;
+        margin-bottom: 8px;
+        color: #0f172a;
+    }
+
+    .checkout-form {
+        margin-top: 10px;
+    }
+
+    .place-order-btn {
+        width: 100%;
+        margin-top: 14px;
+        padding: 15px 16px;
+        border: none;
+        border-radius: 16px;
+        background: #2563eb;
+        color: white;
+        font-size: 16px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+    }
+
+    .place-order-btn:hover {
+        background: #1d4ed8;
+    }
+
+    .checkout-note {
+        margin-top: 14px;
+        color: #64748b;
+        line-height: 1.7;
+        font-size: 14px;
+    }
+
+    .email-help {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #2563eb;
+    }
+
+    .checkbox-row label {
+        margin-bottom: 0;
+        font-weight: 700;
+        color: #0f172a;
+        cursor: pointer;
+    }
+
+    .empty-cart-card {
+        background: #ffffff;
+        border-radius: 26px;
+        padding: 34px 24px;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        color: #64748b;
+    }
+
+    .empty-cart-card h2 {
+        color: #0f172a;
+        font-size: 30px;
+        margin-bottom: 10px;
+    }
+
+    .empty-cart-card p {
+        margin-bottom: 18px;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 1100px) {
+        .cart-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .cart-item {
+            grid-template-columns: 1fr;
+            text-align: left;
+        }
+
+        .cart-actions {
+            justify-content: flex-start;
+        }
+
+        .cart-header h1 {
+            font-size: 34px;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .qty-form {
+            width: 100%;
+        }
+
+        .qty-input {
+            flex: 1;
+            width: auto;
+        }
+
+        .cart-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .cart-actions .btn,
+        .cart-actions a {
+            width: 100%;
+            text-align: center;
+        }
+
+        .checkbox-row {
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="cart-page">
+    <div class="cart-header">
+        <div>
+            <h1>Cart Checkout</h1>
+            <p>One customer, many items, one receipt.</p>
+        </div>
+
+        <div class="cart-header-actions">
+            <a href="{% url 'food_menu' %}" class="btn" style="background:#475569;">Back to Menu</a>
+            {% if cart_items %}
+                <a href="{% url 'clear_cart' %}" class="btn" style="background:#dc2626;">Clear Cart</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if cart_items %}
+        <div class="cart-shell">
+            <div class="cart-card">
+                <div class="card-title">Items in Cart</div>
+
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                        <div class="cart-item">
+                            <div>
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="cart-image">
+                                {% else %}
+                                    <img
+                                        src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='100%25' height='100%25' fill='%23e2e8f0'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='%2364758b'>No Image</text></svg>"
+                                        alt="No Image"
+                                        class="cart-image">
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <div class="cart-name">{{ item.product.name }}</div>
+                                <div class="cart-meta">
+                                    Unit Price: ₱{{ item.unit_price }}<br>
+                                    Quantity: {{ item.quantity }}<br>
+                                    Subtotal: <strong>₱{{ item.subtotal }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="cart-actions">
+                                <form method="post" action="{% url 'update_cart_item' item.product.id %}" class="qty-form">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" min="1" max="{{ item.product.stock }}" value="{{ item.quantity }}" class="qty-input">
+                                    <button type="submit" class="btn">Update</button>
+                                </form>
+
+                                <a href="{% url 'remove_cart_item' item.product.id %}" class="btn remove-btn">Remove</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="card-title">Checkout Summary</div>
+
+                <div class="summary-rows">
+                    <div class="summary-row">
+                        <span class="summary-label">Total Items</span>
+                        <span class="summary-value">{{ total_quantity }}</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal</span>
+                        <span class="summary-value">₱{{ grand_total }}</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Grand Total</span>
+                        <span class="grand-total">₱{{ grand_total }}</span>
+                    </div>
+                </div>
+
+                <div class="checkout-box">
+                    <form method="post" class="checkout-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="customer_name">Customer Name</label>
+                            <input type="text" id="customer_name" name="customer_name" placeholder="Enter customer full name" required>
+                        </div>
+
+                        <div class="form-group" style="margin-top:14px;">
+                            <label for="customer_email">Email Address (Optional)</label>
+                            <input type="email" id="customer_email" name="customer_email" placeholder="Enter your email if you want updates">
+                            <div class="email-help">
+                                Leave this blank if you do not want email updates.
+                            </div>
+                        </div>
+
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="wants_email_updates" name="wants_email_updates">
+                            <label for="wants_email_updates">Send me order updates by email</label>
+                        </div>
+
+                        <button type="submit" class="place-order-btn">
+                            Place Whole Order
+                        </button>
+                    </form>
+
+                    <p class="checkout-note">
+                        This will create one order with many items and one whole receipt after payment.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart-card">
+            <h2>Your cart is empty</h2>
+            <p>Add food or drinks first before checkout.</p>
+            <a href="{% url 'food_menu' %}" class="btn">Go to Food Menu</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

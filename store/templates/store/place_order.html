@@ -1,0 +1,471 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Place Order{% endblock %}
+
+{% block content %}
+<style>
+    .order-page {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .back-row {
+        margin-bottom: 18px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: #475569;
+        font-weight: 700;
+        padding: 10px 14px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .back-link:hover {
+        color: #0f172a;
+        background: #f8fafc;
+    }
+
+    .order-shell {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 24px;
+        align-items: stretch;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 380px;
+        object-fit: cover;
+        border-radius: 18px;
+        margin-bottom: 18px;
+    }
+
+    .product-badge {
+        display: inline-block;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 999px;
+        margin-bottom: 14px;
+    }
+
+    .product-name {
+        font-size: 36px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+        line-height: 1.1;
+        text-transform: capitalize;
+    }
+
+    .product-category {
+        color: #64748b;
+        font-size: 16px;
+        margin-bottom: 12px;
+        text-transform: capitalize;
+    }
+
+    .product-price {
+        font-size: 34px;
+        font-weight: 800;
+        color: #16a34a;
+        margin-bottom: 12px;
+    }
+
+    .stock-pill {
+        display: inline-block;
+        background: #f8fafc;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .product-highlights {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-top: 10px;
+    }
+
+    .highlight-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px;
+    }
+
+    .highlight-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        margin-bottom: 6px;
+    }
+
+    .highlight-value {
+        font-size: 18px;
+        font-weight: 800;
+        color: #0f172a;
+        text-transform: capitalize;
+    }
+
+    .form-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+        color: #64748b;
+        margin-bottom: 22px;
+        line-height: 1.5;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        font-size: 16px;
+        outline: none;
+        transition: 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .qty-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .qty-btn {
+        width: 44px;
+        height: 44px;
+        border: none;
+        border-radius: 12px;
+        background: #e2e8f0;
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .qty-btn:hover {
+        background: #cbd5e1;
+    }
+
+    .qty-input {
+        width: 120px;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .warning-text {
+        margin-top: 10px;
+        color: #b45309;
+        font-size: 14px;
+        display: none;
+    }
+
+    .total-panel {
+        margin-top: 22px;
+        background: linear-gradient(135deg, #eff6ff, #f8fafc);
+        border: 1px solid #dbeafe;
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+    .total-label {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .total-value {
+        font-size: 34px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .total-note {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    .order-btn {
+        display: inline-block;
+        padding: 14px 20px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+    }
+
+    .order-btn:hover {
+        background: #1d4ed8;
+    }
+
+    .cancel-btn {
+        display: inline-block;
+        padding: 14px 20px;
+        background: #e2e8f0;
+        color: #0f172a;
+        text-decoration: none;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .cancel-btn:hover {
+        background: #cbd5e1;
+    }
+
+    .small-help {
+        margin-top: 16px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 920px) {
+        .order-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .product-image {
+            height: 280px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .product-highlights {
+            grid-template-columns: 1fr;
+        }
+
+        .qty-wrapper {
+            flex-wrap: wrap;
+        }
+
+        .qty-input {
+            width: 100%;
+        }
+
+        .form-actions > * {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="order-page">
+    <div class="back-row">
+        <a href="{% url 'food_menu' %}" class="back-link">← Back to Menu</a>
+    </div>
+
+    <div class="topbar" style="margin-bottom: 18px;">
+        <h1>Place Order</h1>
+    </div>
+
+    <div class="order-shell">
+        <div class="order-card">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            {% else %}
+                <img
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='700' height='500'><rect width='100%25' height='100%25' fill='%23e2e8f0'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='30' fill='%2364758b'>No Image Available</text></svg>"
+                    alt="No Image"
+                    class="product-image">
+            {% endif %}
+
+            <span class="product-badge">Ready to order</span>
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-category">{{ product.category }}</div>
+            <div class="product-price">₱{{ product.price }}</div>
+            <div class="stock-pill">Available Stock: {{ product.stock }}</div>
+
+            <div class="product-highlights">
+                <div class="highlight-box">
+                    <div class="highlight-label">Category</div>
+                    <div class="highlight-value">{{ product.category }}</div>
+                </div>
+                <div class="highlight-box">
+                    <div class="highlight-label">Stock Left</div>
+                    <div class="highlight-value">{{ product.stock }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-card">
+            <div class="form-title">Complete Your Order</div>
+            <div class="form-subtitle">
+                Review your item, choose quantity, and place your order smoothly.
+            </div>
+
+            {% if error %}
+                <div class="alert-box" style="margin-bottom: 18px;">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" id="orderForm">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="customer_name">Customer Name</label>
+                    <input
+                        type="text"
+                        id="customer_name"
+                        name="customer_name"
+                        class="form-control"
+                        placeholder="Enter your full name"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <div class="qty-wrapper">
+                        <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+                        <input
+                            type="number"
+                            id="quantity"
+                            name="quantity"
+                            class="form-control qty-input"
+                            min="1"
+                            max="{{ product.stock }}"
+                            value="1"
+                            required
+                            oninput="updateOrderUI()">
+                        <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                    </div>
+                    <div id="stockWarning" class="warning-text">
+                        Quantity cannot be more than available stock.
+                    </div>
+                </div>
+
+                <div class="total-panel">
+                    <div class="total-label">Estimated Total</div>
+                    <div class="total-value">₱<span id="estimatedTotal">{{ product.price }}</span></div>
+                    <div class="total-note">Total updates automatically as quantity changes.</div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button"
+                            class="order-btn"
+                            onclick="submitOrderForm()">
+                        Place Order Now
+                    </button>
+
+                    <a href="{% url 'food_menu' %}" class="cancel-btn">Cancel</a>
+                </div>
+
+                <div class="small-help">
+                    Tip: Double-check quantity before placing your order.
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateOrderUI() {
+        const quantityInput = document.getElementById('quantity');
+        const totalEl = document.getElementById('estimatedTotal');
+        const stockWarning = document.getElementById('stockWarning');
+
+        const price = parseFloat("{{ product.price }}");
+        const stock = parseInt("{{ product.stock }}", 10);
+
+        let quantity = parseInt(quantityInput.value || "1", 10);
+
+        if (isNaN(quantity) || quantity < 1) {
+            quantity = 1;
+        }
+
+        if (quantity > stock) {
+            stockWarning.style.display = 'block';
+        } else {
+            stockWarning.style.display = 'none';
+        }
+
+        const total = price * quantity;
+        totalEl.innerText = total.toFixed(2);
+    }
+
+    function changeQty(amount) {
+        const quantityInput = document.getElementById('quantity');
+        const stock = parseInt("{{ product.stock }}", 10);
+
+        let current = parseInt(quantityInput.value || "1", 10);
+        if (isNaN(current)) current = 1;
+
+        current += amount;
+
+        if (current < 1) current = 1;
+        if (current > stock) current = stock;
+
+        quantityInput.value = current;
+        updateOrderUI();
+    }
+
+    function submitOrderForm() {
+        updateOrderUI();
+
+        const quantityInput = document.getElementById('quantity');
+        const stock = parseInt("{{ product.stock }}", 10);
+        const quantity = parseInt(quantityInput.value || "1", 10);
+
+        if (quantity > stock) {
+            return;
+        }
+
+        playActionAndSubmit('orderForm', 'normal');
+    }
+
+    window.addEventListener('load', updateOrderUI);
+</script>
+{% endblock %}

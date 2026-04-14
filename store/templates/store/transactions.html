@@ -1,0 +1,109 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        margin-bottom: 22px;
+    }
+
+    .page-subtitle {
+        color: #64748b;
+        margin-top: 8px;
+        line-height: 1.6;
+    }
+
+    .filter-bar {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr auto auto;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .source-badge {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .source-order {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .source-rfid {
+        background: #ecfdf3;
+        color: #15803d;
+    }
+
+    .amount-text {
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    @media (max-width: 900px) {
+        .filter-bar {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <h1>Transactions</h1>
+    <p class="page-subtitle">Track order and RFID transaction activity with quick search and date filtering.</p>
+</div>
+
+<div class="section">
+    <form method="get" class="filter-bar">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search product, source, or RFID user...">
+        <input type="date" name="date" value="{{ selected_date }}">
+        <button type="submit" class="btn">Search</button>
+        <a href="{% url 'transaction_list' %}" class="btn" style="background:#64748b;">Reset</a>
+    </form>
+
+    <div class="table-wrap">
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>RFID User</th>
+                <th>Source</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Time</th>
+            </tr>
+            {% for txn in transactions %}
+            <tr>
+                <td style="font-weight:700; text-transform:capitalize;">{{ txn.product.name }}</td>
+                <td>
+                    {% if txn.rfid_user %}
+                        {{ txn.rfid_user.full_name }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if txn.source == 'ORDER' %}
+                        <span class="source-badge source-order">{{ txn.source }}</span>
+                    {% elif txn.source == 'RFID' %}
+                        <span class="source-badge source-rfid">{{ txn.source }}</span>
+                    {% else %}
+                        {{ txn.source }}
+                    {% endif %}
+                </td>
+                <td>{{ txn.quantity }}</td>
+                <td class="amount-text">₱{{ txn.total_price }}</td>
+                <td>{{ txn.transaction_time|date:"F j, Y, g:i a" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No transactions found.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}
