@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db.models.functions import TruncDate, TruncWeek
-
+from django.templatetags.static import static
 from .models import Product, Transaction, Alert, RFIDUser, Order, OrderItem, Payment
 
 
@@ -127,6 +127,10 @@ def save_cart(request, cart):
     request.session['cart'] = cart
     request.session.modified = True
 
+def get_product_image_url(product):
+    if product and getattr(product, 'image', None) and getattr(product.image, 'name', ''):
+        return static(f"store/{product.image.name}")
+    return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='320'><rect width='100%25' height='100%25' fill='%23e2e8f0'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='24' fill='%2364758b'>No Image</text></svg>"
 
 def build_cart_items(cart):
     product_ids = [int(pid) for pid in cart.keys()]
@@ -147,6 +151,8 @@ def build_cart_items(cart):
         quantity = int(qty)
         if quantity < 1:
             continue
+
+        product.display_image_url = get_product_image_url(product)
 
         subtotal = product.price * quantity
         grand_total += subtotal

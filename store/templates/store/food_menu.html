@@ -1,4 +1,3 @@
-{% load static %}
 {% extends 'store/base.html' %}
 
 {% block title %}Food Menu{% endblock %}
@@ -212,6 +211,7 @@
         object-fit: cover;
         border-radius: 18px;
         margin-bottom: 14px;
+        background: #e2e8f0;
     }
 
     .food-topline {
@@ -487,14 +487,7 @@
                             <div class="menu-grid">
                                 {% for product in group.list %}
                                     <div class="food-card">
-                                        {% if product.image %}
-                                             <img src="{% static 'store/'|add:product.image.name %}" alt="{{ product.name }}" class="food-image">
-                                        {% else %}
-                                            <img
-                                                src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='320'><rect width='100%25' height='100%25' fill='%23e2e8f0'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='24' fill='%2364758b'>No Image</text></svg>"
-                                                alt="No Image"
-                                                class="food-image">
-                                        {% endif %}
+                                        <img src="{{ product.display_image_url }}" alt="{{ product.name }}" class="food-image">
 
                                         <div class="food-topline">
                                             <span class="food-category">{{ product.category|default:"uncategorized" }}</span>
@@ -524,7 +517,7 @@
                                                     <input type="number" name="quantity" min="1" max="{{ product.stock }}" value="1" class="qty-input">
                                                     <button type="button" class="qty-btn" onclick="changeMenuQty(this, 1)">+</button>
                                                 </div>
-                                                <button type="submit" class="add-btn" onclick="playSimpleSound()">Add to Cart</button>
+                                                <button type="submit" class="add-btn">Add to Cart</button>
                                             </form>
                                         {% else %}
                                             <span class="sold-out-btn">Out of Stock</span>
