@@ -1,3 +1,4 @@
+{% load static %}
 {% extends 'store/base.html' %}
 
 {% block title %}Cart Checkout{% endblock %}
@@ -346,9 +347,9 @@
                     {% for item in cart_items %}
                         <div class="cart-item">
                             <div>
-                                {% if item.product.image %}
-                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="cart-image">
-                                {% else %}
+                               {% if item.product.image %}
+                                      <img src="{% static 'store/'|add:item.product.image.name %}" alt="{{ item.product.name }}" class="cart-image">
+                               {% else %}
                                     <img
                                         src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='100%25' height='100%25' fill='%23e2e8f0'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='%2364758b'>No Image</text></svg>"
                                         alt="No Image"

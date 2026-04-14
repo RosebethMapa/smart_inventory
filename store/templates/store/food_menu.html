@@ -1,3 +1,4 @@
+{% load static %}
 {% extends 'store/base.html' %}
 
 {% block title %}Food Menu{% endblock %}
@@ -487,7 +488,7 @@
                                 {% for product in group.list %}
                                     <div class="food-card">
                                         {% if product.image %}
-                                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="food-image">
+                                             <img src="{% static 'store/'|add:product.image.name %}" alt="{{ product.name }}" class="food-image">
                                         {% else %}
                                             <img
                                                 src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='320'><rect width='100%25' height='100%25' fill='%23e2e8f0'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='24' fill='%2364758b'>No Image</text></svg>"
