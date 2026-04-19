@@ -8,7 +8,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "change-this-in-vercel")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
-VERCEL_ENV = os.environ.get("VERCEL") == "1"
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -59,56 +58,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Local = SQLite
-# Vercel = MySQL/Aiven only if env vars exist
-if (
-    VERCEL_ENV
-    and os.environ.get("DB_NAME")
-    and os.environ.get("DB_USER")
-    and os.environ.get("DB_PASSWORD")
-    and os.environ.get("DB_HOST")
-    and os.environ.get("DB_PORT")
-):
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": os.environ.get("DB_NAME"),
-            "USER": os.environ.get("DB_USER"),
-            "PASSWORD": os.environ.get("DB_PASSWORD"),
-            "HOST": os.environ.get("DB_HOST"),
-            "PORT": os.environ.get("DB_PORT"),
-            "OPTIONS": {
-                "ssl": {
-                    "ca": str(BASE_DIR / "certs" / "ca.pem"),
-                },
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
-# Prevent homepage/session crash when DB is unstable on Vercel
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 LANGUAGE_CODE = "en-us"
