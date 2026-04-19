@@ -120,8 +120,12 @@ def lock_store_admin(request):
 
 
 def get_cart(request):
-    return request.session.setdefault('cart', {})
-
+    cart = request.session.get("cart")
+    if cart is None:
+        request.session["cart"] = {}
+        request.session.modified = True
+        cart = request.session["cart"]
+    return cart
 
 def save_cart(request, cart):
     request.session['cart'] = cart
